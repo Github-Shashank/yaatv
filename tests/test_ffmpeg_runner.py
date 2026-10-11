@@ -12,6 +12,7 @@ from yaatv.ffmpeg.runner import (
     probe_output,
     quote_command,
     run_ffmpeg,
+    _rate_or_none,
     verify_output_stats,
 )
 from yaatv.models import OutputStats, YaatvError
@@ -550,3 +551,21 @@ def test_verify_prores_requires_hq_and_24_bit_pcm_but_tolerates_missing_bit_dept
         verify_output_stats(
             replace(stats, audio_bits_per_sample=16), (1920, 1080), is_prores=True
         )
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        ("30/1", 30.0),
+        ("123.5", 123.5),
+        ("1/0", None),
+        ("nan", None),
+        ("inf", None),
+        ("-inf", None),
+        ("invalid", None),
+        (None, None),
+    ],
+)
+def test_rate_or_none_normalizes_invalid_values(
+    value: object, expected: float | None
+) -> None:
+    assert _rate_or_none(value) == expected
