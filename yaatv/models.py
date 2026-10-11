@@ -42,7 +42,18 @@ class FFmpegResult:
     def __eq__(self, other: object) -> bool:
         if isinstance(other, int):
             return self.returncode == other
-        return super().__eq__(other)
+        # The fields, not `super().__eq__`. The decorator adds its generated `__eq__` to THIS
+        # class, so there is none on the parent to defer to: `super().__eq__` reached
+        # `object.__eq__`, which is identity, and two results carrying the same return code and
+        # tail compared unequal unless they happened to be the same object.
+        if not isinstance(other, FFmpegResult):
+            return NotImplemented
+        return (self.returncode, self.stderr_tail) == (other.returncode, other.stderr_tail)
+
+    def __hash__(self) -> int:
+        # Redefining `__eq__` sets `__hash__` to None, so it has to be given back. Hash only the
+        # return code, so a result stays hash-equal to the int it equals.
+        return hash(self.returncode)
 
     def __int__(self) -> int:
         return self.returncode
