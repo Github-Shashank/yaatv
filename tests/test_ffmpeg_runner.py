@@ -8,11 +8,11 @@ import pytest
 from yaatv.ffmpeg.runner import (
     FFMPEG_ERROR_TAIL_LINES,
     FFPROBE_INPUT_AUDIO_TIMEOUT_SECONDS,
+    _rate_or_none,
     probe_audio_stream,
     probe_output,
     quote_command,
     run_ffmpeg,
-    _rate_or_none,
     verify_output_stats,
 )
 from yaatv.models import OutputStats, YaatvError
